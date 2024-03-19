@@ -4,10 +4,16 @@ import cors, { type CorsOptions } from 'cors';
 import helmet from 'helmet';
 import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
 import morgan from 'morgan';
+import YAML from 'yamljs';
+import swaggerUI from 'swagger-ui-express';
+
+const swaggerDocument = YAML.load('./swagger.yaml');
 
 dotenv.config();
 
 const app: Application = express();
+
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 app.use(
   cors({
