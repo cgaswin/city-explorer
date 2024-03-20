@@ -1,11 +1,21 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import validator from 'validator';
 import { ApiError } from '../utils/ApiError.js';
 import { ENV_VARIABLE_NOT_FOUND_ERROR_CODE, ENV_VARIABLE_NOT_FOUND_ERROR_MESSAGE } from '../utils/errorCodes.js';
 
-const userModel = new mongoose.Schema(
+export interface IUser extends Document {
+  name: string;
+  email: string;
+  password: string;
+  preferences: [string];
+  recommendations: [string];
+  validatePassword: (userSendPassword: string) => boolean;
+  createJwtToken: () => Promise<string>;
+}
+
+const userModel = new mongoose.Schema<IUser>(
   {
     name: {
       type: String,
@@ -24,7 +34,7 @@ const userModel = new mongoose.Schema(
       minlength: [6, 'password should not be less than 6 character'],
       select: false,
     },
-    preference: [String],
+    preferences: [String],
     recommendations: [String],
   },
   { timestamps: true },
@@ -55,4 +65,5 @@ userModel.methods.createJwtToken = async function (): Promise<string> {
   return jwt.sign({ id: this._id }, jwtSecret, { expiresIn: jwtExpiry });
 };
 
-module.exports = mongoose.model('User', userModel);
+const User = mongoose.model<IUser>('User', userModel);
+export default User;

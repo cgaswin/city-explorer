@@ -6,6 +6,7 @@ import rateLimit, { type RateLimitRequestHandler } from 'express-rate-limit';
 import morgan from 'morgan';
 import YAML from 'yamljs';
 import swaggerUI from 'swagger-ui-express';
+import cookieParser from 'cookie-parser';
 
 const swaggerDocument = YAML.load('./swagger.yaml');
 
@@ -25,8 +26,8 @@ app.use(
 app.use(helmet());
 app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ extended: true, limit: '16kb' }));
-app.use(express.static('public'));
 app.use(morgan('dev'));
+app.use(cookieParser());
 
 const limiter: RateLimitRequestHandler = rateLimit({
   windowMs: 15 * 60 * 1000, //15 mins
@@ -36,5 +37,9 @@ const limiter: RateLimitRequestHandler = rateLimit({
 });
 
 app.use('/api', limiter);
+
+import userRoutes from './src/routes/userRoutes.js';
+
+app.use('/api/v1/', userRoutes);
 
 export default app;
