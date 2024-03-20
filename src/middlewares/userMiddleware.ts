@@ -7,11 +7,17 @@ interface RequestWithUser extends Request {
   user: IUser;
 }
 
-export const isLoggedIn = (req: RequestWithUser, res: Response, next: NextFunction) => {
+export const isLoggedIn = (req: Request, res: Response, next: NextFunction) => {
   const typedReq = req as RequestWithUser;
-  const token: string | undefined = typedReq.header('Authorization')?.replace('Bearer ', '');
-  if (!token) {
-    return next(new ApiError(401, 'Please login to continue'));
+  let token = req.cookies.token;
+
+  const authHeader = typedReq.header('Authorization');
+  if (!token && authHeader) {
+    token = authHeader.replace('Bearer ', '');
+  }
+
+  if (!token && !authHeader) {
+    return next(new ApiError(401, 'Unauthorized'));
   }
 
   try {
