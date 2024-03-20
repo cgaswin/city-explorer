@@ -1,0 +1,115 @@
+openapi: 3.0.0
+info:
+  title: User API
+  description: API for user registration, authentication, and recommendations
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api/v1
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Bad request. Invalid user data provided.
+        '500':
+          description: Internal server error. Failed to register user.
+  /login:
+    post:
+      summary: Login with user credentials
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLogin'
+      responses:
+        '200':
+          description: User logged in successfully
+        '400':
+          description: Bad request. Invalid login credentials provided.
+        '401':
+          description: Unauthorized. Invalid login credentials.
+        '500':
+          description: Internal server error. Failed to log in user.
+  /logout:
+    get:
+      summary: Logout the currently logged-in user
+      responses:
+        '200':
+          description: User logged out successfully
+        '401':
+          description: Unauthorized. No user currently logged in.
+        '500':
+          description: Internal server error. Failed to log out user.
+  /recommendation:
+    get:
+      summary: Get weather-based activity recommendation
+      parameters:
+        - in: query
+          name: ip
+          description: User's IP address for weather lookup
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: apiKey
+          description: Weather API key for accessing weather data
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Weather-based activity recommendation generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityRecommendation'
+        '400':
+          description: Bad request. Invalid IP address provided.
+        '401':
+          description: Unauthorized. User not logged in.
+        '500':
+          description: Internal server error. Failed to generate recommendation.
+components:
+  schemas:
+    UserRegistration:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+      required:
+        - name
+        - email
+        - password
+    UserLogin:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+      required:
+        - email
+        - password
+    ActivityRecommendation:
+      type: object
+      properties:
+        activity:
+          type: string

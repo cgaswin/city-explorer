@@ -37,8 +37,8 @@ export const isLoggedIn = (req: Request, res: Response, next: NextFunction) => {
           return next(new ApiError(404, 'User not found'));
         }
 
-        typedReq.user = user; // Assign user property to typedReq
-        next(); // Call next to proceed to the next middleware
+        typedReq.user = user;
+        next();
       })
       .catch((err) => {
         console.log(err);
